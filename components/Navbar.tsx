@@ -29,8 +29,8 @@ export default function Navbar() {
   };
 
   return (
-    <header className="border-b px-4 sm:px-8 lg:px-12 mt-6 bg-background/50 backdrop-blur">
-      <nav className="mx-auto max-w-7xl py-3 flex items-center justify-between">
+    <header className="border-b mx-4 sm:mx-8 lg:mx-14 mt-6 bg-background/50 backdrop-blur">
+      <nav className="mx-auto py-3 flex items-center justify-between">
         <Link href="/" className="font-semibold text-2xl sm:text-3xl">
           BlogSite
         </Link>

@@ -79,23 +79,22 @@ export default function Home() {
 
   return (
     <div>
-      <div className="px-[2vw]">
-        <div className="overflow-hidden">
-          <div
-            className="
-    w-full
-    font-black
-    text-[19vw]
-    leading-[0.85]
-    tracking-tight
-    whitespace-nowrap
-    text-center
-  "
-          >
-            ART&nbsp;&amp;&nbsp;LIFE
-          </div>
-        </div>
-      </div>
+      <div className="px-[2vw] mx-auto">
+  <h1
+    className="
+      font-black
+      tracking-tight
+      leading-[0.85]
+      text-center
+      text-[clamp(4rem,19vw,18rem)]
+      whitespace-normal
+      sm:whitespace-nowrap
+    "
+  >
+    ART&nbsp;&amp;<wbr />&nbsp;LIFE
+  </h1>
+</div>
+
 
       <div className="px-[2.5vw] mt-8">
         <div className="bg-black text-white h-16 flex items-center overflow-hidden">
@@ -179,7 +178,7 @@ export default function Home() {
               <img
                 src={featuredBlog.imageUrl}
                 alt={featuredBlog.title}
-                className="w-full h-[480px] object-cover"
+                className="w-full h-120 object-cover"
               />
             </div>
           )}
