@@ -1,36 +1,35 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## Blog Frontend (Next.js)
 
-## Getting Started
+Simple blog UI wired to the deployed API.
 
-First, run the development server:
+**API Base**: https://blogwebsite-iz96.onrender.com/api/v1
+
+### Quick Start
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Features
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Home list with filters and pagination: [app/page.tsx](app/page.tsx)
+- Blog detail + quick edit/delete: [app/blog/[id]/page.tsx](app/blog/%5Bid%5D/page.tsx)
+- Login: [app/login/page.tsx](app/login/page.tsx)
+- Register: [app/register/page.tsx](app/register/page.tsx)
+- Create blog (multipart upload): [app/create/page.tsx](app/create/page.tsx)
+- Profile (requires token): [app/profile/page.tsx](app/profile/page.tsx)
+- Navbar: [components/Navbar.tsx](components/Navbar.tsx)
 
-## Learn More
+### API Layer
 
-To learn more about Next.js, take a look at the following resources:
+- Config/base URL: [lib/config.ts](lib/config.ts)
+- Auth token helpers: [lib/auth.ts](lib/auth.ts)
+- API calls: [lib/api.ts](lib/api.ts)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Notes
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Update/Delete endpoints are currently open on the API, so quick edit works without auth.
+- Create and profile require a JWT in localStorage (`token`). Login stores it automatically.

@@ -1,65 +1,348 @@
-import Image from "next/image";
+"use client";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { getBlogs } from "@/lib/api";
+import { getToken } from "@/lib/auth";
+import { useRouter } from "next/navigation";
+
+type Blog = {
+  _id: string;
+  title: string;
+  author?: string;
+  content: string;
+  date?: string;
+  imageUrl?: string | null;
+};
 
 export default function Home() {
+  const [blogs, setBlogs] = useState<Blog[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(0);
+  const [size, setSize] = useState(10);
+  const [title, setTitle] = useState("");
+  const [author, setAuthor] = useState("");
+  const [authed, setAuthed] = useState(false);
+  const router = useRouter();
+
+  const load = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await getBlogs({
+        page,
+        size,
+        title: title || undefined,
+        author: author || undefined,
+      });
+      setBlogs(data.blogs ?? []);
+    } catch (e: any) {
+      setError(e.message || "Failed to load blogs");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Require auth: redirect if no token
+  useEffect(() => {
+    const token = getToken();
+    if (!token) {
+      router.replace("/login");
+      return;
+    }
+    setAuthed(true);
+  }, [router]);
+
+  // Load blogs when authed and paging changes
+  useEffect(() => {
+    if (authed) {
+      load();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authed, page, size]);
+
+  const featuredBlog = blogs[0];
+  const otherBlogs = blogs.slice(1);
+
+  // if (loading)
+  //   return (
+  //     <div className="max-w-7xl mx-auto py-20 text-center">
+  //       <p className="text-xl">Loading…</p>
+  //     </div>
+  //   );
+  if (error)
+    return (
+      <div className="max-w-7xl mx-auto py-20">
+        <p className="text-red-600 text-xl">{error}</p>
+      </div>
+    );
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <div>
+      <div className="px-[2vw]">
+        <div className="overflow-hidden">
+          <div
+            className="
+    w-full
+    font-black
+    text-[19vw]
+    leading-[0.85]
+    tracking-tight
+    whitespace-nowrap
+    text-center
+  "
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+            ART&nbsp;&amp;&nbsp;LIFE
+          </div>
+        </div>
+      </div>
+
+      <div className="px-[2.5vw] mt-8">
+        <div className="bg-black text-white h-16 flex items-center overflow-hidden">
+          <div className="shrink-0 px-8 font-bold text-sm whitespace-nowrap">
+            NEWS TICKER+++
+          </div>
+
+          {/* RIGHT: SCROLLING AREA */}
+          <div className="relative flex-1 overflow-hidden">
+            <div className="ticker-content flex whitespace-nowrap">
+              <span className="px-6 text-sm">
+                sit amet, consectetur adipiscing elit +++
+              </span>
+              <span className="px-6 text-sm">
+                Lorem ipsum dolor sit amet +++
+              </span>
+              <span className="px-6 text-sm">
+                consectetur adipiscing elit +++
+              </span>
+
+              {/* DUPLICATE for seamless loop */}
+              <span className="px-6 text-sm">
+                sit amet, consectetur adipiscing elit +++
+              </span>
+              <span className="px-6 text-sm">
+                Lorem ipsum dolor sit amet +++
+              </span>
+              <span className="px-6 text-sm">
+                consectetur adipiscing elit +++
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {featuredBlog && (
+        <div className="mx-auto px-8 py-16">
+          <div className="grid md:grid-cols-2 gap-20 items-start">
+            <div>
+              <Link href={`/blog/${featuredBlog._id}`}>
+                <h2 className="text-6xl md:text-7xl font-black leading-[0.95] tracking-tight hover:opacity-70 transition">
+                  {featuredBlog.title.toUpperCase()}
+                </h2>
+              </Link>
+            </div>
+
+            <div className="space-y-6">
+              <p className="text-lg leading-relaxed">
+                {featuredBlog.content.substring(0, 300)}…
+              </p>
+
+              <div className="flex flex-wrap items-center gap-6 text-sm">
+                <div>
+                  <span className="font-semibold">Text</span>{" "}
+                  <span className="underline">
+                    {featuredBlog.author || "Anonymous"}
+                  </span>
+                </div>
+                <div>
+                  <span className="font-semibold">Date</span>{" "}
+                  {new Date(
+                    featuredBlog.date || Date.now(),
+                  ).toLocaleDateString()}
+                </div>
+                <div>
+                  <span className="font-semibold">Read</span> 5 Min
+                </div>
+
+                <Link
+                  href={`/blog/${featuredBlog._id}`}
+                  className="px-5 py-2 border border-black rounded-full text-xs font-semibold hover:bg-black hover:text-white transition"
+                >
+                  READ
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {featuredBlog.imageUrl && (
+            <div className="mt-12">
+              <img
+                src={featuredBlog.imageUrl}
+                alt={featuredBlog.title}
+                className="w-full h-[480px] object-cover"
+              />
+            </div>
+          )}
+        </div>
+      )}
+
+      <div className="mx-auto px-8 py-8 border-t">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            setPage(0);
+            load();
+          }}
+          className="
+      grid
+      grid-cols-1
+      gap-4
+      md:grid-cols-4
+      items-end
+    "
+        >
+          {/* Title */}
+          <div className="w-full">
+            <label className="block text-xs font-semibold mb-1">
+              FILTER BY TITLE
+            </label>
+            <input
+              className="border border-black px-3 py-2 w-full"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Search..."
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+          </div>
+
+          {/* Author */}
+          <div className="w-full">
+            <label className="block text-xs font-semibold mb-1">
+              FILTER BY AUTHOR
+            </label>
+            <input
+              className="border border-black px-3 py-2 w-full"
+              value={author}
+              onChange={(e) => setAuthor(e.target.value)}
+              placeholder="Author name..."
+            />
+          </div>
+
+          {/* Per Page */}
+          <div className="w-full">
+            <label className="block text-xs font-semibold mb-1">PER PAGE</label>
+            <input
+              type="number"
+              min={1}
+              max={50}
+              className="border border-black px-3 py-2 w-full"
+              value={size}
+              onChange={(e) => setSize(Number(e.target.value))}
+            />
+          </div>
+
+          {/* Button */}
+          <button
+            type="submit"
+            className="
+        w-full
+        px-6
+        py-2.75
+        bg-black
+        text-white
+        font-semibold
+        text-sm
+        hover:opacity-80
+        transition
+      "
           >
-            Documentation
-          </a>
+            APPLY
+          </button>
+        </form>
+      </div>
+
+      <div className="mx-auto px-8 py-12">
+        {!loading && otherBlogs.length === 0 && (
+          <p className="text-center text-lg">No more blogs found.</p>
+        )}
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-3">
+          {otherBlogs.map((b) => (
+            <Link
+              key={b._id}
+              href={`/blog/${b._id}`}
+              className="group flex flex-col border border-black p-6"
+            >
+              {/* Date */}
+              <div className="mb-6 text-sm text-gray-700">
+                {new Date(featuredBlog.date || Date.now()).toLocaleDateString()}
+              </div>
+
+              {/* Image */}
+              {b.imageUrl && (
+                <div className="overflow-hidden mb-6">
+                  <img
+                    src={b.imageUrl}
+                    alt={b.title}
+                    className="w-full aspect-square object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                </div>
+              )}
+
+              {/* Title */}
+              <h3 className="text-2xl font-bold mb-3 leading-snug">
+                {b.title}
+              </h3>
+
+              {/* Description */}
+              <p className="text-sm leading-relaxed text-gray-700 mb-10 line-clamp-4">
+                {b.content}
+              </p>
+
+              {/* Footer */}
+              {b.author && (
+                <div className="mt-auto text-sm">
+                  <span className="font-semibold">Text </span>
+                  <span className="underline underline-offset-4">
+                    {b.author}
+                  </span>
+                </div>
+              )}
+            </Link>
+          ))}
         </div>
-      </main>
+      </div>
+
+      <div className="mt-12 flex justify-center">
+        <div className="flex items-center gap-6 border border-black px-6 py-3">
+          <button
+            disabled={page === 0}
+            onClick={() => setPage((p) => Math.max(0, p - 1))}
+            className="
+        text-sm
+        font-semibold
+        disabled:opacity-40
+        hover:opacity-70
+        transition
+      "
+          >
+            ← Prev
+          </button>
+
+          <span className="text-sm font-medium">Page {page + 1}</span>
+
+          <button
+            onClick={() => setPage((p) => p + 1)}
+            className="
+        text-sm
+        font-semibold
+        hover:opacity-70
+        transition
+      "
+          >
+            Next →
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
